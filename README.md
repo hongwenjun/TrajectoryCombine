@@ -22,4 +22,7 @@ Usage: TrajectoryCombine.exe  test.bin.gz  [test2.bin.gz ...]
 支持百度导航4.7.0和之前版本
 TrajectoryCombine\BaiduNavi_APK\百度导航4.7.0版.apk
 
-现在百度导航已经合并到百度地图，可以从这里下载4.7.0测试
+***
+现在百度导航已经合并到百度地图
+百度地图 的轨迹文件 在 /mnt/sdcard/BaiduMap/bnav/TRAJECTORY 目录下
+***
