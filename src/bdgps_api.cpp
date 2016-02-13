@@ -28,7 +28,7 @@ void debug_gps_point(FILE* outfile, GPS_POINT* gps_point)
 }
 
 
-
+extern FILE* out_google_maps;
 
 void print_gps_point(FILE* outfile, GPS_POINT* gps_point)
 {
@@ -48,6 +48,9 @@ void print_gps_point(FILE* outfile, GPS_POINT* gps_point)
     debug_gps_point(outfile, gps_point);
 #endif
 
+    // 打印纬度和精度到google_maps用的html文件里
+    fprintf(out_google_maps, "%.5f", (float)gps_point->latitude / 100000);
+    fprintf(out_google_maps, "%%09%.5f/", (float)gps_point->longitude / 100000);
 
 }
 
@@ -77,7 +80,7 @@ BOOL IsFileExist(LPCTSTR lpFileName)
 size_t get_fileSize(const char* filename)
 {
     FILE* pfile = fopen(filename, "rb");
-    fseek(pfile, 0 , SEEK_END);
+    fseek(pfile, 0, SEEK_END);
     size_t size = ftell(pfile);
     fclose(pfile);
     return size;
@@ -91,7 +94,7 @@ size_t get_gzbinSize(const char* filename)
     char* buf = new char[BUFSIZE];
     int data_size = 0;  int cnt = 0;
     gzFile gzf = gzopen(filename, "rb");
-    while ((cnt = gzread(gzf , buf ,   BUFSIZE))  > 0)
+    while ((cnt = gzread(gzf, buf,   BUFSIZE))  > 0)
         data_size += cnt;
 
     gzclose(gzf);
@@ -104,7 +107,7 @@ char* GetAppDir(char* szPath)
 {
     char* ret = szPath;
     GetModuleFileName(NULL, szPath, MAX_PATH); // 得到当前执行文件的文件名（包含路径）
-    *(strrchr(szPath , '\\')) = '\0';   // 删除文件名，只留下目录
+    *(strrchr(szPath, '\\')) = '\0';    // 删除文件名，只留下目录
     return ret;
 }
 

@@ -1,5 +1,8 @@
 ﻿#include <bdgps_api.h>
 
+FILE* out_google_maps;
+
+
 int main(int argc, char* argv[])
 {
 
@@ -25,8 +28,6 @@ int main(int argc, char* argv[])
             all_point = true;
     }
 
-
-
     long data_size = get_fileSize(argv[1]);
     int32_t gz_header_3byte = GZ_HEADER_3BYTE;
     fread(&gz_header_3byte, 1, sizeof(gz_header_3byte), pFile);
@@ -44,7 +45,7 @@ int main(int argc, char* argv[])
         buffer = new char[data_size + 1];
         buffer[data_size] = 0;
 
-        if (gzread(gzf , buffer ,  data_size)  < 0)
+        if (gzread(gzf, buffer,  data_size)  < 0)
             return -1;
         gzclose(gzf);
 
@@ -53,6 +54,9 @@ int main(int argc, char* argv[])
         buffer = new char[data_size];
         fread(buffer, 1, data_size, pFile);
     }
+
+    out_google_maps = fopen("index.html", "w");
+    fprintf(out_google_maps, "<html><head>\n<meta http-equiv=\"refresh\" content=\"1; url=http://www.google.cn/maps/dir/");
 
     // 分析内存中的数据
     char* gps_buffer = buffer;
@@ -97,6 +101,10 @@ int main(int argc, char* argv[])
 
     // 释放文件和内存
     fclose(pFile);
+
+    fprintf(out_google_maps, "\" />\n</head><body>\n自动跳转到 到google地图 <p>\n http://www.google.cn/maps/dir/ gps坐标/ gps坐标 / gps坐标 <p>\n</body></html>");
+    fclose(out_google_maps);
+
     delete[] buffer;
 
     return 0;
