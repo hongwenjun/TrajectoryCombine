@@ -75,8 +75,8 @@ bool make_gpsfile(FILE* bin_file, const char* filename)
     GPS_FILEHEAD* gps_filehead = new GPS_FILEHEAD[1];
     size_t gps_head_size = sizeof(GPS_FILEHEAD);
     memset(gps_filehead, '\0', gps_head_size);
-    gps_filehead->date_pos = 0x18;
-    gps_filehead->unknown1 = 0x06;    // 06 是06版轨迹文件，之前是04  05
+    gps_filehead->data_pos = 0x18;
+    gps_filehead->data_ver = 0x06;    // 06 是06版轨迹文件，之前是04  05
     gps_filehead->unknown2 = 0x54E981EF;
     gps_filehead->unknown3 = 0x58970040;
 
@@ -146,9 +146,17 @@ int readgpsfile(const char* filename, map<time_t, GPS_POINT>& map_gps_point)
     char* gps_buffer = buffer;
     GPS_FILEHEAD* gps_filehead = (GPS_FILEHEAD*)gps_buffer;   // bin文件头
 
-    GPS_POINT* gps_point = (GPS_POINT*)(gps_buffer + gps_filehead->date_pos);  // 第一条GPS记录
-    int gps_point_total = (data_size - gps_filehead->date_pos) / sizeof(GPS_POINT); // GPS记录条目数
+    // 兼容旧版本 02 04 05 和当前 06版本数据，使用指针回退，兼容数据结构不一样长
+    int ver_offset = 0;
+    if (gps_filehead->data_ver == 5) {
+        ver_offset = sizeof(int32_t);
+    } else if (gps_filehead->data_ver <= 4) {
+        ver_offset = 2 * sizeof(int32_t);
+    }
 
+
+    GPS_POINT* gps_point = (GPS_POINT*)(gps_buffer + gps_filehead->data_pos);  // 第一条GPS记录
+    int gps_point_total = (data_size - gps_filehead->data_pos) / (sizeof(GPS_POINT) - ver_offset); // GPS记录条目数
 
     int fraction = 10;   // 默认输出(1/10) GPS节点
     int count = fraction;
@@ -160,7 +168,10 @@ int readgpsfile(const char* filename, map<time_t, GPS_POINT>& map_gps_point)
             count = fraction;
 
         gps_point++;
+        gps_point = (GPS_POINT*)((char *)gps_point - ver_offset);   // 兼容旧版本 02 04 05 当作 06版本数据读，读好来个指针回退
     }
+
+    gps_point = (GPS_POINT*)((char *)gps_point + ver_offset);
     --gps_point;
     map_gps_point.insert(make_pair(gps_point->timestamp, *gps_point));
 

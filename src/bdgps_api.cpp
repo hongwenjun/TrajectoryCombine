@@ -1,6 +1,6 @@
 ﻿#include <bdgps_api.h>
 
-
+FILE* out_google_maps;
 
 // DEBUG 调试数据用
 void debug_gps_point(FILE* outfile, GPS_POINT* gps_point)
@@ -44,7 +44,7 @@ void print_gps_point(FILE* outfile, GPS_POINT* gps_point)
     strftime(time_str, 80, "%Y-%m-%d %H:%M:%S", timeinfo);
     fprintf(outfile, "%s\n", time_str);
 
-#if(1)
+#if(0)
     debug_gps_point(outfile, gps_point);
 #endif
 

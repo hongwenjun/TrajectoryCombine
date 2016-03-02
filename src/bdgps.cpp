@@ -62,17 +62,28 @@ int main(int argc, char* argv[])
     char* gps_buffer = buffer;
     GPS_FILEHEAD* gps_filehead = (GPS_FILEHEAD*)gps_buffer;   // bin文件头
 
-//    printf("%d\t%d\n", gps_filehead->date_pos, gps_filehead->unknown1);
+//    printf("%d\t%d\n", gps_filehead->data_pos, gps_filehead->unknown1);
 //    printf("%d\t%d\n", gps_filehead->unknown2, gps_filehead->unknown3);
 
-    GPS_POINT* gps_point = (GPS_POINT*)(gps_buffer + gps_filehead->date_pos);  // 第一条GPS记录
-    int gps_point_total = (data_size - gps_filehead->date_pos) / sizeof(GPS_POINT); // GPS记录条目数
+
+    // 兼容旧版本 02 04 05 和当前 06版本数据，使用指针回退，兼容数据结构不一样长
+    int ver_offset = 0;
+    if (gps_filehead->data_ver == 5) {
+        ver_offset = sizeof(int32_t);
+    } else if (gps_filehead->data_ver <= 4) {
+        ver_offset = 2 * sizeof(int32_t);
+    }
+
+
+    GPS_POINT* gps_point = (GPS_POINT*)(gps_buffer + gps_filehead->data_pos);  // 第一条GPS记录
+    int gps_point_total = (data_size - gps_filehead->data_pos) / (sizeof(GPS_POINT) - ver_offset); // GPS记录条目数
 
     fprintf(outfile, "纬度\t经度\t时速(Km/H)\t时间戳\n");
 
     if (all_point) {     // 输出所有GPS节点
         while (gps_point_total--) {
             print_gps_point(outfile, gps_point++);
+            gps_point = (GPS_POINT*)((char *)gps_point - ver_offset);   // 兼容旧版本 02 04 05 当作 06版本数据读，读好来个指针回退
         }
     } else {
         int fraction = 60;   // 默认输出(1/60) GPS节点
@@ -95,7 +106,10 @@ int main(int argc, char* argv[])
             }
 
             gps_point++;
+            gps_point = (GPS_POINT*)((char *)gps_point - ver_offset);
         }
+
+        gps_point = (GPS_POINT*)((char *)gps_point + ver_offset);
         print_gps_point(outfile, --gps_point); // 终点节点
     }
 
