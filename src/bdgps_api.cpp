@@ -1,6 +1,5 @@
 ﻿#include <bdgps_api.h>
 
-FILE* out_google_maps;
 
 // DEBUG 调试数据用
 void debug_gps_point(FILE* outfile, GPS_POINT* gps_point)
@@ -56,12 +55,15 @@ void print_gps_point(FILE* outfile, GPS_POINT* gps_point)
 
 void help()
 {
-    printf("百度轨迹GPS: 轨迹记录文件导出Gps点(1/60，支持gz格式) BY Hong Wenjun 2015.1.9\n\n");
+    printf("百度轨迹GPS: 轨迹记录文件导出Gps点(for Google地图版) BY Hong Wenjun 2016.3.4\n"
+           "本软件源码 https://github.com/hongwenjun/TrajectoryCombine\n\n");
     printf("示例1: D:\\>bdgps.exe  test.bin [或者 test.bin.gz]  \n");
     printf("示例2: D:\\>bdgps.exe  test.bin.gz  gps.txt \n");
     printf("示例3: D:\\>bdgps.exe  test.bin.gz  gps.txt  -ALL \n");
     printf("示例4: D:\\>bdgps.exe  test.bin.gz  gps.txt  -100 \n");
     printf("\n输出文件不填，结果显示在屏幕上\a  <用-ALL或者数字参数，设置分数>\n");
+    printf("另外输出文件index.html, 用浏览器Gps点显示在Google地图上\n");
+
 }
 
 

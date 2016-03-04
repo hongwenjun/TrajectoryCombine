@@ -10,6 +10,8 @@
 using namespace std;
 using namespace mrpt::system;
 
+FILE* out_google_maps;
+
 int readgpsfile(const char* filename, map<time_t, GPS_POINT>& map_gps_point);
 bool make_gpsfile(FILE* bin_file, const char* filename);
 // ------------------------------------------------------
@@ -19,6 +21,7 @@ int main(int argc, char** argv)
 {
     try {
         if (argc < 2) {
+            printf("https://github.com/hongwenjun/TrajectoryCombine   <BY Hong Wenjun> 2016.3.4\n\n");
             printf("Usage: TrajectoryCombine.exe  test.bin.gz  [test2.bin.gz ...]\n");
             return -1;
         }

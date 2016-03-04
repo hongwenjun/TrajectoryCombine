@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
     }
 
     out_google_maps = fopen("index.html", "w");
-    fprintf(out_google_maps, "<html><head>\n<meta http-equiv=\"refresh\" content=\"1; url=http://www.google.cn/maps/dir/");
+    fprintf(out_google_maps, "<html><head>\n<meta http-equiv=\"refresh\" content=\"2; url=http://www.google.cn/maps/dir/");
 
     // 分析内存中的数据
     char* gps_buffer = buffer;
@@ -80,13 +80,15 @@ int main(int argc, char* argv[])
 
     fprintf(outfile, "纬度\t经度\t时速(Km/H)\t时间戳\n");
 
+    int google_maps_point = gps_point_total / 10;  // google地图用分10段，分数
+
     if (all_point) {     // 输出所有GPS节点
         while (gps_point_total--) {
             print_gps_point(outfile, gps_point++);
-            gps_point = (GPS_POINT*)((char *)gps_point - ver_offset);   // 兼容旧版本 02 04 05 当作 06版本数据读，读好来个指针回退
+            gps_point = (GPS_POINT*)((char*)gps_point - ver_offset);    // 兼容旧版本 02 04 05 当作 06版本数据读，读好来个指针回退
         }
     } else {
-        int fraction = 60;   // 默认输出(1/60) GPS节点
+        int fraction = google_maps_point;   // google地图用分10段，分数
         if (3 < argc) {      // 自定义分数
             int diy_fraction = abs(atoi(argv[3]));
             if (5 < diy_fraction && diy_fraction < 3601)
@@ -106,17 +108,18 @@ int main(int argc, char* argv[])
             }
 
             gps_point++;
-            gps_point = (GPS_POINT*)((char *)gps_point - ver_offset);
+            gps_point = (GPS_POINT*)((char*)gps_point - ver_offset);
         }
 
-        gps_point = (GPS_POINT*)((char *)gps_point + ver_offset);
+        gps_point = (GPS_POINT*)((char*)gps_point + ver_offset);
         print_gps_point(outfile, --gps_point); // 终点节点
     }
 
     // 释放文件和内存
     fclose(pFile);
 
-    fprintf(out_google_maps, "\" />\n</head><body>\n自动跳转到 到google地图 <p>\n http://www.google.cn/maps/dir/ gps坐标/ gps坐标 / gps坐标 <p>\n</body></html>");
+    fprintf(out_google_maps, "\" />\n</head><body>\n自动跳转到 到google地图 <p>\n http://www.google.cn/maps/dir/ gps坐标/ gps坐标 / gps坐标 <p>\n");
+    fprintf(out_google_maps, "当前轨迹数据文件:%s<p>\n</body></html>", argv[1]);
     fclose(out_google_maps);
 
     delete[] buffer;
