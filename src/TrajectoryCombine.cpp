@@ -155,6 +155,13 @@ int readgpsfile(const char* filename, map<time_t, GPS_POINT>& map_gps_point)
     char* gps_buffer = buffer;
     GPS_FILEHEAD* gps_filehead = (GPS_FILEHEAD*)gps_buffer;   // bin文件头
 
+    // 屏蔽  xxxx_rp.bin.gz 非轨迹文件
+    if (!((gps_filehead->empty_1 == 0x00) && (gps_filehead->data_pos == 0x18))) {
+
+        cerr << "Error: NO GPS_Trajectory in " << filename << endl;
+        return -2;
+    }
+
 
     if (strcmp(filename, first_filename) == 0) {
         // 获取第一个文件的文件头
