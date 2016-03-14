@@ -60,8 +60,8 @@ void help()
     printf("示例1: D:\\>bdgps.exe  test.bin [或者 test.bin.gz]  \n");
     printf("示例2: D:\\>bdgps.exe  test.bin.gz  gps.txt \n");
     printf("示例3: D:\\>bdgps.exe  test.bin.gz  gps.txt  -ALL \n");
-    printf("示例4: D:\\>bdgps.exe  test.bin.gz  gps.txt  -100 \n");
-    printf("\n输出文件不填，结果显示在屏幕上\a  <用-ALL或者数字参数，设置分数>\n");
+    printf("示例4: D:\\>bdgps.exe  test.bin.gz  gps.txt  -60 \n");
+    printf("\n输出文件不填，结果显示在屏幕上\a  <用-ALL参数所有Gps点，-60近每分钟频率>\n");
     printf("另外输出文件index.html, 用浏览器Gps点显示在Google地图上\n");
 
 }

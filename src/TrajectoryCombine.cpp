@@ -86,8 +86,8 @@ bool make_gpsfile(FILE* bin_file, const char* filename)
     size_t gps_head_size = sizeof(GPS_FILEHEAD);
 
     memcpy(gps_filehead, &first_file_gps_filehead, sizeof(GPS_FILEHEAD));
-//    gps_filehead->data_pos = 0x18;
-//    gps_filehead->data_ver = 0x06;    // 06 是06版轨迹文件，之前是04  05
+    gps_filehead->data_pos = 0x18;
+    gps_filehead->data_ver = 0x06;    // 06 是06版轨迹文件，之前是04  05
 
 
 

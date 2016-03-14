@@ -109,10 +109,13 @@ int main(int argc, char* argv[])
 
             gps_point++;
             gps_point = (GPS_POINT*)((char*)gps_point - ver_offset);
+
         }
 
-        gps_point = (GPS_POINT*)((char*)gps_point + ver_offset);
-        print_gps_point(outfile, --gps_point); // 终点节点
+        if (3 < argc) {
+            gps_point = (GPS_POINT*)((char*)gps_point + ver_offset);
+            print_gps_point(outfile, --gps_point); // 终点节点
+        }
     }
 
     // 释放文件和内存
