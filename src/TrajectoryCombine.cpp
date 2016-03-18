@@ -107,9 +107,10 @@ bool make_gpsfile(FILE* bin_file, const char* filename)
 //    cerr <<  buf_size << endl;
 
     // 写入gz压缩的百度导航轨迹文件
+    bool ret = true;
     gzFile gzf = gzopen(filename, "rw");
     if (gzwrite(gzf, buffer,  buf_size)  < 0)
-        return false;
+        ret = false;
     gzclose(gzf);
 
     delete[] buffer;
