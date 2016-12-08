@@ -65,7 +65,6 @@ int main(int argc, char* argv[])
 //    printf("%d\t%d\n", gps_filehead->data_pos, gps_filehead->unknown1);
 //    printf("%d\t%d\n", gps_filehead->unknown2, gps_filehead->unknown3);
 
-
     // 兼容旧版本 02 04 05 和当前 06版本数据，使用指针回退，兼容数据结构不一样长
     int ver_offset = 0;
     if (gps_filehead->data_ver == 5) {
@@ -73,7 +72,10 @@ int main(int argc, char* argv[])
     } else if (gps_filehead->data_ver <= 4) {
         ver_offset = 2 * sizeof(int32_t);
     }
-
+    // 07版本的轨迹文件只有百度地图使用，改76字节了，暂时只用负数偏移量解决
+    if (gps_filehead->data_ver == 7) {
+        ver_offset = -8; //06版68字节   07版是76 ; 所以这里是-8
+    }
 
     GPS_POINT* gps_point = (GPS_POINT*)(gps_buffer + gps_filehead->data_pos);  // 第一条GPS记录
     int gps_point_total = (data_size - gps_filehead->data_pos) / (sizeof(GPS_POINT) - ver_offset); // GPS记录条目数
