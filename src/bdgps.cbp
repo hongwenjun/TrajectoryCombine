@@ -48,6 +48,9 @@
 		<Unit filename="bdgps.cpp" />
 		<Unit filename="bdgps_api.cpp" />
 		<Unit filename="bdgps_api.h" />
+		<Unit filename="china_shift.cpp" />
+		<Unit filename="china_shift.h" />
+		<Unit filename="txt2gpx.cpp" />
 		<Unit filename="zconf.h" />
 		<Unit filename="zlib.h" />
 		<Unit filename="zlib.lib" />

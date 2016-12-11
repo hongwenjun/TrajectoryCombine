@@ -129,6 +129,21 @@ int main(int argc, char* argv[])
 
     delete[] buffer;
 
+    fclose(outfile);
+
+    // bdgps_txt 转 gpx格式
+    if (2 < argc)  {
+        char filnename[FILENAME_MAX];
+
+        strcpy(filnename, argv[2]);
+        FILE* input = fopen(filnename, "r");
+
+        strcat(filnename, ".gpx");
+        FILE* gpxfile = fopen(filnename, "w");
+
+        int gpx_line =  bdgps_txt2gpx(input,  gpxfile);
+    }
+
     return 0;
 }
 

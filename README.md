@@ -36,4 +36,20 @@ TrajectoryCombine\BaiduNavi_APK\百度导航4.7.0版.apk
 
 
 
+# Google Earth 支持打开导入  kml   nmea  gpx 还有 txt格式
 
+    txt文件要自己指定精度 纬度 没有航迹。
+    nmea和gpx文件支持航迹比较方便。
+    gpx格式比较简单，支持转换还不错。
+
+![image](https://github.com/hongwenjun/TrajectoryCombine/raw/master/img/gpx_on_ge.jpg)
+
+# 工具添加自动导出 gpx格式功能，执行命令
+***
+
+bdgps.exe 百度导航轨迹.bin.gz  gps.txt -60
+
+将自动把 gps.txt 转换成 gps.txt.gpx
+并且 GPS里的火星坐标会转换成地球坐标
+然后把gpx 拉到Google地球将显示航迹轨迹
+***

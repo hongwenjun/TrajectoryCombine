@@ -78,5 +78,7 @@ char* GetAppDir(char* szPath);
 // 得到全路径文件的文件名
 const char* GetFileBaseName(const char* szPath);
 
+// bdgps_txt 转 gpx格式,
+int bdgps_txt2gpx(FILE* input, FILE* outfile);
 
 #endif // BDGPS_API_H_INCLUDED
