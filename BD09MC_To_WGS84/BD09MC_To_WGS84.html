@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>百度摩卡托坐标:bd09mc（经纬度坐标，米制坐标）与wgs84,火星坐标的互转</title>
+<script src="http://api.map.baidu.com/api?v=2.0&ak=GBxFTGWYF0v439Yp40SmjvBL" type="text/javascript" ></script>
+<script src="http://code.jquery.com/jquery-latest.js" type="text/javascript"></script>
+<script type="text/javascript">
+//定义一些常量
+var x_PI = 3.14159265358979324 * 3000.0 / 180.0;
+var PI = 3.1415926535897932384626;
+var a = 6378245.0;
+var ee = 0.00669342162296594323;
+
+/**
+* 百度坐标系 (BD-09) 与 火星坐标系 (GCJ-02)的转换
+* 即 百度 转 谷歌、高德
+* @param bd_lon
+* @param bd_lat
+* @returns {*[]}
+*/
+function bd09togcj02(bd_lon, bd_lat) {
+   var x_pi = 3.14159265358979324 * 3000.0 / 180.0;
+   var x = bd_lon - 0.0065;
+   var y = bd_lat - 0.006;
+   var z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * x_pi);
+   var theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * x_pi);
+   var gg_lng = z * Math.cos(theta);
+   var gg_lat = z * Math.sin(theta);
+   return [gg_lng, gg_lat]
+}
+
+/**
+* GCJ02 转换为 WGS84
+* @param lng
+* @param lat
+* @returns {*[]}
+*/
+function gcj02towgs84(lng, lat) {
+   if (out_of_china(lng, lat)) {
+       return [lng, lat]
+   }
+   else {
+       var dlat = transformlat(lng - 105.0, lat - 35.0);
+       var dlng = transformlng(lng - 105.0, lat - 35.0);
+       var radlat = lat / 180.0 * PI;
+       var magic = Math.sin(radlat);
+       magic = 1 - ee * magic * magic;
+       var sqrtmagic = Math.sqrt(magic);
+       dlat = (dlat * 180.0) / ((a * (1 - ee)) / (magic * sqrtmagic) * PI);
+       dlng = (dlng * 180.0) / (a / sqrtmagic * Math.cos(radlat) * PI);
+       mglat = lat + dlat;
+       mglng = lng + dlng;
+       return [lng * 2 - mglng, lat * 2 - mglat]
+   }
+}
+
+
+/**
+* WGS84转GCj02
+* @param lng
+* @param lat
+* @returns {*[]}
+*/
+function wgs84togcj02(lng, lat) {
+   if (out_of_china(lng, lat)) {
+       return [lng, lat]
+   }
+   else {
+       var dlat = transformlat(lng - 105.0, lat - 35.0);
+       var dlng = transformlng(lng - 105.0, lat - 35.0);
+       var radlat = lat / 180.0 * PI;
+       var magic = Math.sin(radlat);
+       magic = 1 - ee * magic * magic;
+       var sqrtmagic = Math.sqrt(magic);
+       dlat = (dlat * 180.0) / ((a * (1 - ee)) / (magic * sqrtmagic) * PI);
+       dlng = (dlng * 180.0) / (a / sqrtmagic * Math.cos(radlat) * PI);
+       var mglat = Number(lat) + Number(dlat);
+       var mglng = Number(lng) + Number(dlng);
+       return [mglng, mglat]
+   }
+}
+
+/**
+* 火星坐标系 (GCJ-02) 与百度坐标系 (BD-09) 的转换
+* 即谷歌、高德 转 百度
+* @param lng
+* @param lat
+* @returns {*[]}
+*/
+function gcj02tobd09(lng, lat) {
+   var z = Math.sqrt(lng * lng + lat * lat) + 0.00002 * Math.sin(lat * x_PI);
+   var theta = Math.atan2(lat, lng) + 0.000003 * Math.cos(lng * x_PI);
+   var bd_lng = z * Math.cos(theta) + 0.0065;
+   var bd_lat = z * Math.sin(theta) + 0.006;
+   return [bd_lng, bd_lat]
+}
+
+
+
+function transformlat(lng, lat) {
+   var ret = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
+   ret += (20.0 * Math.sin(6.0 * lng * PI) + 20.0 * Math.sin(2.0 * lng * PI)) * 2.0 / 3.0;
+   ret += (20.0 * Math.sin(lat * PI) + 40.0 * Math.sin(lat / 3.0 * PI)) * 2.0 / 3.0;
+   ret += (160.0 * Math.sin(lat / 12.0 * PI) + 320 * Math.sin(lat * PI / 30.0)) * 2.0 / 3.0;
+   return ret
+}
+
+
+function transformlng(lng, lat) {
+   var ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
+   ret += (20.0 * Math.sin(6.0 * lng * PI) + 20.0 * Math.sin(2.0 * lng * PI)) * 2.0 / 3.0;
+   ret += (20.0 * Math.sin(lng * PI) + 40.0 * Math.sin(lng / 3.0 * PI)) * 2.0 / 3.0;
+   ret += (150.0 * Math.sin(lng / 12.0 * PI) + 300.0 * Math.sin(lng / 30.0 * PI)) * 2.0 / 3.0;
+   return ret
+}
+/**
+* 判断是否在国内，不在国内则不做偏移
+* @param lng
+* @param lat
+* @returns {boolean}
+*/
+function out_of_china(lng, lat) {
+   return (lng < 72.004 || lng > 137.8347) || ((lat < 0.8293 || lat > 55.8271) || false);
+}
+
+/**
+* 百度墨卡托转经纬度坐标
+* @param lng
+* @param lat
+* @param divId
+* @returns{lngLatPt}
+*/
+var baiduMercatoToLngLat=function(x,y,divId){
+var baiduMap = new BMap.Map(divId);
+//通过web mercato坐标构建起点终点
+var ptXY = new BMap.Pixel(x,y);  
+//通过相应接口将起点终点的web mercato坐标转换为经纬度坐标
+   var projection2 = baiduMap.getMapType().getProjection();
+   var lngLatPt=projection2.pointToLngLat(ptXY);
+   return lngLatPt;
+}
+
+/**
+* 百度经纬度坐标转百度墨卡托坐标
+* @param lng
+* @param lat
+* @param divId
+* @returns{mercatoPt}
+*/
+   var baiduLngLatToMercato=function(lng,lat,divId){
+var bdXY = new BMap.Point(lng,lat);
+var baiduMap = new BMap.Map(divId);
+   var projection2 = baiduMap.getMapType().getProjection();
+   var mercatoPt = projection2.lngLatToPoint(bdXY);
+return mercatoPt;
+}
+
+
+//定义变量
+var baiduLngLatArr=[],gcj02Arr=[],baiduXYArr=[];
+var wgs84StrArr="",gcj02StrArr="",baiduXYStrArr="";
+
+function fOppositeTranslate(){
+if($("#wgs84orgcj02_xy_textarea").val()==""){
+alert("请输入坐标");
+return;
+}
+baiduLngLatArr=[],gcj02Arr=[],baiduXYArr=[];
+wgs84StrArr="",gcj02StrArr="",baiduXYStrArr="";
+var wgs84orgcj02XYArr=$("#wgs84orgcj02_xy_textarea").val();
+wgs84orgcj02XYArr=wgs84orgcj02XYArr.split(";");
+if(wgs84orgcj02XYArr[wgs84orgcj02XYArr.length-1]==""){
+wgs84orgcj02XYArr.splice(wgs84orgcj02XYArr.length-1,1);
+}
+switch($("input[name=radioProjection]:checked").attr("id")){
+case "wgs84_radio":
+for(var i=0;i<wgs84orgcj02XYArr.length;i++){
+var gcj02=wgs84togcj02(wgs84orgcj02XYArr[i].split(",")[0],wgs84orgcj02XYArr[i].split(",")[1]);
+gcj02Arr.push(gcj02);
+}
+for(var j=0;j<gcj02Arr.length;j++){
+var baiduLngLat=gcj02tobd09(gcj02Arr[j][0].toFixed(8),gcj02Arr[j][1].toFixed(8));
+baiduLngLatArr.push(baiduLngLat)
+}
+for (var h=0;h<baiduLngLatArr.length;h++) {
+var baiduXY=baiduLngLatToMercato(baiduLngLatArr[h][0],baiduLngLatArr[h][1],"baidu_container");
+baiduXYArr.push(baiduXY);
+baiduXYStrArr=baiduXYStrArr+baiduXY.x+","+baiduXY.y+";";
+}
+document.getElementById("baidu_xy_textarea").value=baiduXYStrArr;
+break;
+case "gcj02_radio":
+for(var j=0;j<wgs84orgcj02XYArr.length;j++){
+var baiduLngLat=gcj02tobd09(wgs84orgcj02XYArr[j][0],wgs84orgcj02XYArr[j][1]);
+baiduLngLatArr.push(baiduLngLat)
+}
+for (var h=0;h<baiduLngLatArr.length;h++) {
+var baiduXY=baiduLngLatToMercato(baiduLngLatArr[h][0],baiduLngLatArr[h][1],"baidu_container");
+baiduXYArr.push(baiduXY);
+baiduXYStrArr=baiduXYStrArr+baiduXY.x+","+baiduXY.y+";";
+}
+document.getElementById("baidu_xy_textarea").value=baiduXYStrArr;
+break;
+default:break;
+}
+}
+
+function fTranslate(){
+baiduLngLatArr=[],gcj02Arr=[],baiduXYArr=[];
+wgs84StrArr="",gcj02StrArr="",baiduXYStrArr="";
+if($("#baidu_xy_textarea").val()==""){
+alert("请输入坐标");
+return;
+}
+var p_baiduXYArr=$("#baidu_xy_textarea").val();
+p_baiduXYArr=p_baiduXYArr.split(";");
+if(p_baiduXYArr[p_baiduXYArr.length-1]==""){
+p_baiduXYArr.splice(p_baiduXYArr.length-1,1);
+}
+for (var i=0;i<p_baiduXYArr.length;i++) {
+var lnglat=baiduMercatoToLngLat(p_baiduXYArr[i].split(",")[0],p_baiduXYArr[i].split(",")[1],"baidu_container");
+baiduLngLatArr.push(lnglat);
+}
+for (var j=0;j<baiduLngLatArr.length;j++) {
+var gcj02=bd09togcj02(baiduLngLatArr[j].lng,baiduLngLatArr[j].lat);
+gcj02Arr.push(gcj02);
+gcj02StrArr=gcj02StrArr+gcj02[0].toFixed(8)+","+gcj02[1].toFixed(8)+";";
+}
+switch($("input[name=radioProjection]:checked").attr("id")){
+case "wgs84_radio":
+for (var h=0;h<gcj02Arr.length;h++) {
+var lng=gcj02Arr[h][0];
+var lat=gcj02Arr[h][1];
+wgs84StrArr=wgs84StrArr+gcj02towgs84(lng,lat)[0].toFixed(8)+","+gcj02towgs84(lng,lat)[1].toFixed(8)+";";
+}
+$("#wgs84orgcj02_xy_textarea").val("");
+$("#wgs84orgcj02_xy_textarea").val(wgs84StrArr);
+break;
+case "gcj02_radio":
+$("#wgs84orgcj02_xy_textarea").val("");
+$("#wgs84orgcj02_xy_textarea").val(gcj02StrArr);
+break;
+default:break;
+}
+}
+
+</script>
+</head>
+<body>
+百度摩卡托坐标:bd09mc（经纬度坐标，米制坐标）与wgs84,火星坐标的互转
+<p>
+<div id="baidu_container"></div>
+<div id="baidu_xy_div" >
+<font>baidu_xy(bd09mc坐标):</font>
+<textarea id="baidu_xy_textarea" style="width: 100%;height: 250px;"></textarea>
+</div>
+<div id="translate_div">
+<input id="wgs84_radio" type="radio" name="radioProjection" value="wgs84坐标" checked="checked"/>
+<label for="wgs84_radio">wgs84坐标</label>
+<input id="gcj02_radio" type="radio" name="radioProjection" value="火星坐标"/>
+<label for="gcj02_radio">火星坐标</label>
+<input id="translate_input" type="button" value="转换" style="height: 25px;width: 50px;" onclick="fTranslate()"/>
+<input id="oppositeTranslate_input" type="button" value="反转" style="height: 25px;width: 50px;" onclick="fOppositeTranslate()"/>
+</div>
+<div id="wgs84_xy_div" >
+<textarea id="wgs84orgcj02_xy_textarea" type="text" style="width: 100%;height: 250px;"></textarea>
+</div>
+<div>
+格式如：13226059.476838,3743589.86719;13226087.726838,3743655.11719   <p>
+经纬度或XY坐标以英文状态下逗号隔开，每个坐标以英文状态下分号隔开。 <p>
+声明：转载，原文  百度坐标（经纬度坐标，米制坐标）与wgs84,火星坐标的互转 2016-05-30 17:10 <p>
+原网址 http://blog.csdn.net/u011365716/article/details/51539366
+</div>
+</body>
+</html>
