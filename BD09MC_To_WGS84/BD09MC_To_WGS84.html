@@ -176,19 +176,19 @@ p_baiduXYArr.splice(p_baiduXYArr.length-1,1);
 for (var i=0;i<p_baiduXYArr.length;i++) {
 var lnglat=baiduMercatoToLngLat(p_baiduXYArr[i].split(",")[0],p_baiduXYArr[i].split(",")[1],"baidu_container");
 baiduLngLatArr.push(lnglat);
-speed_time.push(p_baiduXYArr[i].split(",")[2])
+speed_time.push(p_baiduXYArr[i].split(",")[2]*3600/1000);
 }
 for (var j=0;j<baiduLngLatArr.length;j++) {
 var gcj02=bd09togcj02(baiduLngLatArr[j].lng,baiduLngLatArr[j].lat);
 gcj02Arr.push(gcj02);
-gcj02StrArr=gcj02StrArr+gcj02[1].toFixed(8)+"\t"+gcj02[0].toFixed(8)+"\t"+speed_time[j]+"\tnone time"+"\n";
+gcj02StrArr=gcj02StrArr+gcj02[1].toFixed(8)+"\t"+gcj02[0].toFixed(8)+"\t"+speed_time[j].toFixed(2)+"\tnone time"+"\n";
 }
 switch($("input[name=radioProjection]:checked").attr("id")){
 case "wgs84_radio":
 for (var h=0;h<gcj02Arr.length;h++) {
 var lng=gcj02Arr[h][0];
 var lat=gcj02Arr[h][1];
-wgs84StrArr=wgs84StrArr+gcj02towgs84(lng,lat)[1].toFixed(8)+"\t"+gcj02towgs84(lng,lat)[0].toFixed(8)+"\t"+speed_time[h]+"\tnone time"+"\n";
+wgs84StrArr=wgs84StrArr+gcj02towgs84(lng,lat)[1].toFixed(8)+"\t"+gcj02towgs84(lng,lat)[0].toFixed(8)+"\t"+speed_time[h].toFixed(2)+"\tnone time"+"\n";
 }
 $("#wgs84orgcj02_xy_textarea").val("");
 $("#wgs84orgcj02_xy_textarea").val(wgs84StrArr);
