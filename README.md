@@ -28,7 +28,16 @@ TrajectoryCombine\BaiduNavi_APK\百度导航4.7.0版.apk
 ![image](https://github.com/hongwenjun/TrajectoryCombine/raw/master/img/traj_dir.png)
 ***
 
+```
+## 百度导航4.7 APK安装包和 浙江省离线地图
+链接: https://pan.baidu.com/s/1N_DLuS8hbbjfKPT5K8l0LA?pwd=hapx 
+提取码: hapx
 
+## 全国各省离线地图，不保证适用新版本
+链接: https://pan.baidu.com/s/1MpzYEc9wqMYsZlSU0zw-JA?pwd=ft9v
+提取码: ft9v
+
+```
 使用工具按 -300 参数 就是 5分钟 取几个gps坐标，
 然后转到 google 地图 生成导航路线
 
